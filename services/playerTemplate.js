@@ -48,7 +48,32 @@ class PlayerService {
         }
     }
 
-    async updatePlayerPoints(playerName, roomDataId, points) {
+    async updatePlayerPoints(roomId) {
+        const query = 'UPDATE Players_Web3 SET point = "?" WHERE room_id = $1';
+        const values = [roomId];
+
+        try {
+            const result = await client.query(query, values);
+
+            return result.rows;
+        } catch (err) {
+            console.error('Error updating player points:', err);
+            throw err;
+        }
+    }
+
+    async sendPlayerVote(vote, player, roomId){
+        const query = 'UPDATE Players SET point = $1 WHERE name = $2 AND room_id = $3';
+        const values = [vote, player, roomId];
+
+        try {
+            const result = await client.query(query, values);
+
+            return result.rows;
+        } catch (err) {
+            console.error('Error sending player vote:', err);
+            throw err;
+        }
     }
 }
 
