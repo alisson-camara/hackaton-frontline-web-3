@@ -1,28 +1,17 @@
-const { Client } = require('pg');
-
-const client = new Client({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
-
-client.connect();
-
 const RoomService = require('../services/roomsTemplate')
-const PlayerService = require('../services/playerTemplate');
+const playerService = require('../services/playerTemplate');
 
 // const client = require('../index');
 
 class RoomController {
   constructor(){
     this.roomService = new RoomService();
+    this.playerService = playerService;
   }
   async getRoom(req, res) {
     const { room } = req.query;
     try {
-      const createRoom = RoomService.getRoom(param);
-      const roomResult = await client.query('SELECT * FROM Rooms WHERE name = $1', [room]);
+      const roomResult = await this.roomService.query('SELECT * FROM Rooms WHERE name = $1', [room]);
       if (roomResult.rows.length === 0) {
         return res.status(404).json({ error: 'Room not found' });
       }
@@ -38,8 +27,10 @@ class RoomController {
   async createRoom(req, res) {
     const { room, moderator } = req.query;
     try {
-
+      
+      console.log('this.roomService :', this.roomService);
       const roomResult = this.roomService.createRoom(room, moderator);
+      
 
      /*  const roomResult = await client.query(
         'INSERT INTO Rooms (name, moderator) VALUES ($1, $2) RETURNING *',
@@ -53,6 +44,7 @@ class RoomController {
       roomData.players = [{ name: moderator, point: "?" }];
       res.status(200).json(roomData);
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: err.message });
     }
   }
