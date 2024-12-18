@@ -63,7 +63,7 @@ class PlayerService {
     }
 
     async sendPlayerVote(vote, player, roomId){
-        const query = 'UPDATE Players SET point = $1 WHERE name = $2 AND room_id = $3';
+        const query = 'UPDATE Players_Web3 SET point = $1 WHERE name = $2 AND room_id = $3';
         const values = [vote, player, roomId];
 
         try {

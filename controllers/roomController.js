@@ -84,7 +84,8 @@ class RoomController {
 
   async sendVote(req, res) {
     const { room, player } = req.query;
-    const { vote } = req.body;
+    const { point } = req.body;
+
     try {
       const roomResult = await this.roomService.getRoomByName(room);
       
@@ -94,7 +95,7 @@ class RoomController {
 
       const roomId = roomResult.id;
 
-      await this.playerService.sendPlayerVote(vote, player, roomId);
+      await this.playerService.sendPlayerVote(point, player, roomId);
 
       const playersResult = await this.playerService.getPlayers(roomId);
 
@@ -120,7 +121,7 @@ class RoomController {
       const roomId = roomResult.id;
       await this.playerService.createPlayer(player, roomId, `?`);
       
-      const playersResult = await this.playerService.getPlayers(roomId);
+      const playersResult = await this.playerService.getPlayers(roomId, point);
 
       res.status(200).json({ name: room, currentTask: roomResult['current_task'], moderator: roomResult.moderator, players: playersResult });
     } catch (err) {
