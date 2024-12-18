@@ -1,0 +1,5 @@
+class IDatabase{
+    async query(){
+
+    }
+}

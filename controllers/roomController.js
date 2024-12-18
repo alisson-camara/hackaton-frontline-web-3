@@ -1,7 +1,7 @@
 const { Client } = require('pg');
 
 const client = new Client({
-  connectionString: "postgres://u77jeiqtv7et73:pd2019c6f01ba0ab35f6e444c04278f4ab1cb2e1e53873933d296c9a933619ef0@ccba8a0vn4fb2p.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d9bacstqoltq50",
+  connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
   }
@@ -9,12 +9,19 @@ const client = new Client({
 
 client.connect();
 
+const RoomService = require('../services/roomsTemplate')
+const PlayerService = require('../services/playerTemplate');
+
 // const client = require('../index');
 
 class RoomController {
+  constructor(){
+    this.roomService = new RoomService();
+  }
   async getRoom(req, res) {
     const { room } = req.query;
     try {
+      const createRoom = RoomService.getRoom(param);
       const roomResult = await client.query('SELECT * FROM Rooms WHERE name = $1', [room]);
       if (roomResult.rows.length === 0) {
         return res.status(404).json({ error: 'Room not found' });
@@ -31,10 +38,13 @@ class RoomController {
   async createRoom(req, res) {
     const { room, moderator } = req.query;
     try {
-      const roomResult = await client.query(
+
+      const roomResult = this.roomService.createRoom(room, moderator);
+
+     /*  const roomResult = await client.query(
         'INSERT INTO Rooms (name, moderator) VALUES ($1, $2) RETURNING *',
         [room, moderator]
-      );
+      ); */
       const roomData = roomResult.rows[0];
       await client.query(
         'INSERT INTO Players (name, room_id) VALUES ($1, $2)',
