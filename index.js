@@ -33,6 +33,16 @@ process.on('SIGTERM', async () => {
   }
 });
 
+process.on('SIGINT', async () => {
+  console.log('SIGINT signal received (Ctrl+C): gracefully shutting down');
+  if (server) {
+    server.close(() => {
+      console.log('HTTP server closed');
+      client.end();
+    });
+  }
+});
+
 client.query(`
   CREATE TABLE IF NOT EXISTS Rooms_Web3 (
     id SERIAL PRIMARY KEY,
