@@ -3,11 +3,11 @@ const roomController = require('../controllers/roomController');
 
 const router = Router();
 
-router.get('/room', roomController.getRoom);
-router.post('/create-room', roomController.createRoom.bind(this.roomController));
-router.post('/remove-player', roomController.removePlayer);
-router.post('/reset-votes', roomController.resetVotes);
-router.post('/sendvote', roomController.sendVote);
-router.post('/join-room', roomController.joinRoom);
+router.get('/room', roomController.getRoom.bind(roomController));
+router.post('/create-room', roomController.createRoom.bind(roomController));
+router.post('/remove-player', roomController.removePlayer.bind(roomController));
+router.post('/reset-votes', roomController.resetVotes.bind(roomController));
+router.post('/sendvote', roomController.sendVote.bind(roomController));
+router.post('/join-room', roomController.joinRoom.bind(roomController));
 
 module.exports = router;

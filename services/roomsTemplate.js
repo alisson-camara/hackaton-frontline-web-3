@@ -13,7 +13,7 @@ class RoomService {
    */
   async createRoom(name, moderatorId) {
     const query = `
-      INSERT INTO Rooms (name, moderator_id)
+      INSERT INTO Rooms_Web3 (name, moderator)
       VALUES ($1, $2)
       RETURNING *;
     `;
@@ -34,12 +34,12 @@ class RoomService {
   async getRoomByName(name) {
     const query = `
       SELECT r.id, r.name, r.current_task, u.name AS moderator, r.created_at
-      FROM Rooms r
-      INNER JOIN Users u ON r.moderator_id = u.id
+      FROM Rooms_Web3 r
+      INNER JOIN Players_Web3 u ON r.moderator = u.name
       WHERE r.name = $1;
     `;
     try {
-      const result = await pool.query(query, [name]);
+      const result = await this.dbServices.query(query, [name]);
       return result.rows[0];
     } catch (err) {
       console.error('Error fetching room:', err);
@@ -53,12 +53,12 @@ class RoomService {
    */
   async deleteRoomByName(name) {
     const query = `
-      DELETE FROM Rooms
+      DELETE FROM Rooms_Web3
       WHERE name = $1
       RETURNING *;
     `;
     try {
-      const result = await pool.query(query, [name]);
+      const result = await this.dbServices.query(query, [name]);
       return result.rows[0];
     } catch (err) {
       console.error('Error deleting room:', err);
@@ -72,11 +72,11 @@ class RoomService {
   async getAllRooms() {
     const query = `
       SELECT r.id, r.name, r.current_task, u.name AS moderator, r.created_at
-      FROM Rooms r
-      INNER JOIN Users u ON r.moderator_id = u.id;
+      FROM Rooms_Web3 r
+      INNER JOIN Users u ON r.moderator = u.id;
     `;
     try {
-      const result = await pool.query(query);
+      const result = await this.dbServices.query(query);
       return result.rows;
     } catch (err) {
       console.error('Error fetching all rooms:', err);

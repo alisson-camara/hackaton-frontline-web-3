@@ -1,22 +1,22 @@
 const RoomService = require('../services/roomsTemplate')
-const playerService = require('../services/playerTemplate');
+const PlayerService = require('../services/playerTemplate');
 
 // const client = require('../index');
 
 class RoomController {
   constructor(){
     this.roomService = new RoomService();
-    this.playerService = playerService;
+    this.playerService = new PlayerService();
   }
   async getRoom(req, res) {
     const { room } = req.query;
     try {
-      const roomResult = await this.roomService.query('SELECT * FROM Rooms WHERE name = $1', [room]);
-      if (roomResult.rows.length === 0) {
+      const roomData = await this.roomService.getRoomByName(room);
+      console.log(roomData);
+      if (roomData === 0) {
         return res.status(404).json({ error: 'Room not found' });
       }
-      const roomData = roomResult.rows[0];
-      const playersResult = await client.query('SELECT name, point FROM Players WHERE room_id = $1', [roomData.id]);
+      const playersResult = this.playerService.getPlayers(roomData.id);
       roomData.players = playersResult.rows;
       res.status(200).json(roomData);
     } catch (err) {
@@ -26,22 +26,11 @@ class RoomController {
 
   async createRoom(req, res) {
     const { room, moderator } = req.query;
+    
     try {
-      
-      console.log('this.roomService :', this.roomService);
-      const roomResult = this.roomService.createRoom(room, moderator);
-      
-
-     /*  const roomResult = await client.query(
-        'INSERT INTO Rooms (name, moderator) VALUES ($1, $2) RETURNING *',
-        [room, moderator]
-      ); */
-      const roomData = roomResult.rows[0];
-      await client.query(
-        'INSERT INTO Players (name, room_id) VALUES ($1, $2)',
-        [moderator, roomData.id]
-      );
-      roomData.players = [{ name: moderator, point: "?" }];
+      const roomData = await this.roomService.createRoom(room, moderator);      
+      const playerResult = await this.playerService.createPlayer(moderator, roomData.id, `?`); 
+      roomData.players = [playerResult];
       res.status(200).json(roomData);
     } catch (err) {
       console.error(err);

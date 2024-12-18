@@ -41,20 +41,20 @@ const client = new Client({
 });
 
 client.query(`
-  CREATE TABLE IF NOT EXISTS Rooms (
+  CREATE TABLE IF NOT EXISTS Rooms_Web3 (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
     moderator VARCHAR(255) NOT NULL,
     current_task VARCHAR(255) DEFAULT 'Task 1',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
-  CREATE TABLE IF NOT EXISTS Players (
+  CREATE TABLE IF NOT EXISTS Players_Web3 (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     room_id INT NOT NULL,
     point VARCHAR(10) DEFAULT '?',
     joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (room_id) REFERENCES Rooms(id) ON DELETE CASCADE
+    FOREIGN KEY (room_id) REFERENCES Rooms_Web3(id) ON DELETE CASCADE
   );
 `, (err, res) => {
   if (err) throw err;
