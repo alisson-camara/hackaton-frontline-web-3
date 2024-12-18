@@ -1,11 +1,8 @@
 
-const DatabaseService = require('./dbServices')
+const client = require('../dbConnection');
 
 class RoomService {
 
-    constructor(){
-        this.dbServices = new DatabaseService();
-    }
   /**
    * Create a new room
    * @param {string} name - Name of the room
@@ -19,7 +16,7 @@ class RoomService {
     `;
     const values = [name, moderatorId];
     try {
-      const result = await this.dbServices.query(query, values);
+      const result = await client.query(query, values);
       return result.rows[0];
     } catch (err) {
       console.error('Error creating room:', err);
@@ -33,13 +30,12 @@ class RoomService {
    */
   async getRoomByName(name) {
     const query = `
-      SELECT r.id, r.name, r.current_task, u.name AS moderator, r.created_at
+      SELECT r.id, r.name, r.current_task, r.moderator
       FROM Rooms_Web3 r
-      INNER JOIN Players_Web3 u ON r.moderator = u.name
       WHERE r.name = $1;
     `;
     try {
-      const result = await this.dbServices.query(query, [name]);
+      const result = await client.query(query, [name]);
       return result.rows[0];
     } catch (err) {
       console.error('Error fetching room:', err);
@@ -58,7 +54,7 @@ class RoomService {
       RETURNING *;
     `;
     try {
-      const result = await this.dbServices.query(query, [name]);
+      const result = await client.query(query, [name]);
       return result.rows[0];
     } catch (err) {
       console.error('Error deleting room:', err);
@@ -76,7 +72,7 @@ class RoomService {
       INNER JOIN Users u ON r.moderator = u.id;
     `;
     try {
-      const result = await this.dbServices.query(query);
+      const result = await client.query(query);
       return result.rows;
     } catch (err) {
       console.error('Error fetching all rooms:', err);

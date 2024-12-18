@@ -1,8 +1,6 @@
 const RoomService = require('../services/roomsTemplate')
 const PlayerService = require('../services/playerTemplate');
 
-// const client = require('../index');
-
 class RoomController {
   constructor(){
     this.roomService = new RoomService();
@@ -12,12 +10,12 @@ class RoomController {
     const { room } = req.query;
     try {
       const roomData = await this.roomService.getRoomByName(room);
-      console.log(roomData);
       if (roomData === 0) {
         return res.status(404).json({ error: 'Room not found' });
       }
-      const playersResult = this.playerService.getPlayers(roomData.id);
-      roomData.players = playersResult.rows;
+      const playersResult = await this.playerService.getPlayers(roomData.id);
+      roomData.players = playersResult;
+
       res.status(200).json(roomData);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -41,14 +39,18 @@ class RoomController {
   async removePlayer(req, res) {
     const { room, player } = req.query;
     try {
-      const roomResult = await client.query('SELECT id FROM Rooms WHERE name = $1', [room]);
-      if (roomResult.rows.length === 0) {
+      const roomResult = await this.roomService.getRoomByName(room);
+      
+      if (!roomResult) {
         return res.status(404).json({ error: 'Room not found' });
       }
-      const roomId = roomResult.rows[0].id;
-      await client.query('DELETE FROM Players WHERE name = $1 AND room_id = $2', [player, roomId]);
-      const playersResult = await client.query('SELECT name, point FROM Players WHERE room_id = $1', [roomId]);
-      res.status(200).json({ name: room, currentTask: "Task 1", moderator: roomResult.rows[0].moderator, players: playersResult.rows });
+      
+      const roomId = roomResult.id;
+      await this.playerService.removePlayer(player, roomId);
+
+      const playersResult = await this.playerService.getPlayers(roomId);
+
+      res.status(200).json({ name: room, currentTask: "Task 1", moderator: roomResult.moderator, players: playersResult });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }

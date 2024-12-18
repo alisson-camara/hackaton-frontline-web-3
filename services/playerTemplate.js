@@ -1,10 +1,7 @@
 
-const DatabaseService = require('./dbServices')
+const client = require('../dbConnection');
 
 class PlayerService {
-    constructor(){
-        this.dbServices = new DatabaseService();
-    }
 
     /**
      * 
@@ -17,8 +14,7 @@ class PlayerService {
         const values = [moderator, roomDataId, points];
 
         try {
-            const result = await this.dbServices.query(query, values);
-            console.log('Player created:', result);
+            const result = await client.query(query, values);
             return result.rows[0];
         } catch (err) {
             console.error('Error creating room:', err);
@@ -27,10 +23,29 @@ class PlayerService {
     }
 
     async removePlayer(playerName, roomDataId) {
+        const query = 'DELETE FROM Players_Web3 WHERE name = $1 AND room_id = $2;';
+        const values = [playerName, roomDataId];
 
+        try {
+            const result = await client.query(query, values);
+            return result.rows[0];
+        } catch (err) {
+            console.error('Error deleting player:', err);
+            throw err;
+        }
     }
     
     async getPlayers(roomDataId) {
+        const query = 'SELECT name,point FROM Players_Web3 WHERE room_id = $1;';
+        const values = [roomDataId];
+
+        try {
+            const result = await client.query(query, values);
+            return result.rows;
+        } catch (err) {
+            console.error('Error getting players:', err);
+            throw err;
+        }
     }
 
     async updatePlayerPoints(playerName, roomDataId, points) {

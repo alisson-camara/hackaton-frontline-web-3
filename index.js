@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const client = require('./dbConnection');
 const roomRoutes = require('./routes/roomRoutes');
 
 const port = process.env.PORT || 5006;
@@ -27,16 +28,8 @@ process.on('SIGTERM', async () => {
   if (server) {
     server.close(() => {
       console.log('HTTP server closed');
+      client.end();
     });
-  }
-});
-
-const { Client } = require('pg');
-
-const client = new Client({
-  connectionString: "postgres://u77jeiqtv7et73:pd2019c6f01ba0ab35f6e444c04278f4ab1cb2e1e53873933d296c9a933619ef0@ccba8a0vn4fb2p.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d9bacstqoltq50",
-  ssl: {
-    rejectUnauthorized: false
   }
 });
 
@@ -60,17 +53,3 @@ client.query(`
   if (err) throw err;
   console.log('Tables are successfully created');
 });
-
-// client.query(`
-//   SELECT table_schema, table_name 
-//   FROM information_schema.tables 
-//   WHERE table_name IN ('Rooms', 'Players');
-// `, (err, res) => {
-//   if (err) throw err;
-//   for (let row of res.rows) {
-//     console.log(JSON.stringify(row));
-//   }
-//   client.end();
-// });
-
-client.connect();
