@@ -121,7 +121,7 @@ class RoomController {
       const roomId = roomResult.id;
       await this.playerService.createPlayer(player, roomId, `?`);
       
-      const playersResult = await this.playerService.getPlayers(roomId, point);
+      const playersResult = await this.playerService.getPlayers(roomId);
 
       res.status(200).json({ name: room, currentTask: roomResult['current_task'], moderator: roomResult.moderator, players: playersResult });
     } catch (err) {
